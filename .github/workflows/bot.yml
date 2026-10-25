@@ -1,0 +1,81 @@
+name: killdpi-bot
+
+# One run = one living KILLDPI server (xray + Cloudflare quick tunnel) + the
+# Telegram bot, for ~5h40m. Ten minutes before the end the bot dispatches the
+# next run itself (workflow_dispatch via GH_PAT) and hands over as soon as the
+# successor publishes its tunnel. The schedule is only a safety net in case
+# a run crashes; the bot exits immediately if another healthy run exists.
+#
+# Required secrets:  BOT_TOKEN, GH_PAT (repo + gist + workflow scopes)
+# Auto-created:      KILLDPI_PRIVATE_KEY (bot stores it on first run)
+# Optional vars:     ADMIN_IDS, BOT_ENABLED=false (pause), RUN_SECONDS, CORE_REPO
+
+on:
+  schedule:
+    - cron: "17 */2 * * *"
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: "why (handover / admin / manual)"
+        default: "manual"
+      run_seconds:
+        description: "lifetime of this run in seconds (max 20700)"
+        default: "20400"
+
+permissions:
+  contents: write
+
+# No concurrency group on purpose: a successor run MUST be able to start
+# while the previous one is still serving (seamless hand-over).
+
+jobs:
+  serve:
+    if: ${{ vars.BOT_ENABLED != 'false' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 355
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: bot/requirements.txt
+
+      - run: pip install -q -r bot/requirements.txt
+
+      - name: Fetch KILLDPI core + cloudflared
+        env:
+          CORE_REPO: ${{ vars.CORE_REPO || 'fjxjxjjdjddjjd042-rgb/KILLDPI' }}
+          GH_TOKEN: ${{ github.token }}
+        run: bash scripts/fetch_bins.sh "$CORE_REPO" bin
+
+      - name: Offline self-tests
+        working-directory: bot
+        run: python ../tests/test_offline.py
+
+      - name: Run server + bot
+        working-directory: bot
+        env:
+          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+          GH_PAT: ${{ secrets.GH_PAT }}
+          KILLDPI_PRIVATE_KEY: ${{ secrets.KILLDPI_PRIVATE_KEY }}
+          DATA_REPO: ${{ github.repository }}
+          ADMIN_IDS: ${{ vars.ADMIN_IDS }}
+          RUN_SECONDS: ${{ github.event.inputs.run_seconds || vars.RUN_SECONDS || '20400' }}
+          WORKFLOW_FILE: bot.yml
+          XRAY_BIN: ${{ github.workspace }}/bin/xray
+          CLOUDFLARED_BIN: ${{ github.workspace }}/bin/cloudflared
+        run: |
+          if [ -z "$BOT_TOKEN" ] || [ -z "$GH_PAT" ]; then
+            echo "::error::Set repository secrets BOT_TOKEN and GH_PAT (Settings -> Secrets and variables -> Actions)."; exit 1; fi
+          python bot.py
+
+      - name: Upload server logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: logs-${{ github.run_id }}
+          path: bot/.runtime/*.log
+          retention-days: 3
+          if-no-files-found: ignore

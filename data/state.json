@@ -1,0 +1,69 @@
+{
+  "configs": {
+    "03WkqceiI754ldcl": {
+      "created": "2026-10-19T12:42:12Z",
+      "down": 336715,
+      "owner": 8517754313,
+      "profile": "web",
+      "up": 127394,
+      "uuid": "6de89080-9bda-4777-9aaa-e26cf6d5d1ea"
+    },
+    "abDq1hH09JHcBFbK": {
+      "created": "2026-10-16T13:23:51Z",
+      "down": 119863287,
+      "owner": 8517754313,
+      "profile": "strong_dpi",
+      "up": 13632911,
+      "uuid": "74ea0649-45f8-4c34-8ceb-b68af5acf6bd"
+    },
+    "bL7v6FMBD8EZ35Ys": {
+      "created": "2026-10-16T13:31:45Z",
+      "down": 152565832,
+      "owner": 8517754313,
+      "profile": "gaming",
+      "up": 16202133,
+      "uuid": "3be3b21c-0889-445e-ae75-66e623bfd55c"
+    }
+  },
+  "runtime": {
+    "clients": 3,
+    "deadline_ts": 1792693638.643609,
+    "pbk": "9McvDKzBmQARb87GTo5b4EjO1Aidp8W53Ici8ua793Y",
+    "run_id": "39781202294",
+    "started_ts": 1792673238.643609,
+    "tunnel_host": "nitrogen-humanities-charitable-anthropology.trycloudflare.com"
+  },
+  "settings": {
+    "clean_ips": [
+      "188.114.96.1",
+      "188.114.97.1",
+      "162.159.192.1",
+      "162.159.195.1",
+      "104.17.148.22",
+      "104.18.0.1",
+      "104.19.0.1",
+      "172.67.0.1"
+    ],
+    "maintenance": false,
+    "max_ips": 4,
+    "ws_path": "/killdpi"
+  },
+  "stats": {},
+  "users": {
+    "8517754313": {
+      "configs": [
+        "abDq1hH09JHcBFbK",
+        "bL7v6FMBD8EZ35Ys",
+        "03WkqceiI754ldcl"
+      ],
+      "first_seen": "2026-10-16T13:22:13Z",
+      "last_seen": "2026-10-20T18:52:11Z",
+      "name": "BESTÇUKUR",
+      "sub_file": "killdpi-8459ad8c.txt",
+      "sub_gist": "50137d341c99917adff2498983631011",
+      "sub_url": "https://gist.githubusercontent.com/fjxjxjjdjddjjd042-rgb/50137d341c99917adff2498983631011/raw/killdpi-8459ad8c.txt",
+      "username": "OWNERPRIME1"
+    }
+  },
+  "version": 2
+}
